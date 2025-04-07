@@ -1,0 +1,35 @@
+secure-notes:
+  security:
+    jwt:
+      secret: 1bb9a63c625e6ae7020d4b05d017e6dea6f804dd8957c1d746e973250d3894b1
+      accessTokenExpiration: 120000
+      refreshTokenExpiration: 360000
+  rate-limit:
+    capacity: 100
+    minutes: 1
+    burst.capacity: 100
+    burst.seconds: 5
+
+spring:
+  sql.init.mode: always
+  datasource:
+    username: user
+    password: password
+    url: jdbc:h2:mem:secure-notes
+    driver-class-name: org.h2.Driver
+
+#    driver-class-name: org.postgresql.Driver
+#    url: jdbc:postgresql://localhost:5432/secure-notes
+#    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+#    url: jdbc:tc:postgresql:9.6.8:///secure-notes
+  jpa:
+    properties:
+      hibernate:
+#        format_sql: true
+    hibernate.ddl-auto: create
+    show-sql: true
+    defer-datasource-initialization: true
+
+
+#log4j.logger.org.hibernate.SQL: debug
+#log4j.logger.org.hibernate.type.descriptor.sql: trace
