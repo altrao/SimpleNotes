@@ -3,7 +3,9 @@ package com.simplenotes
 import com.simplenotes.exception.NoteException
 import com.simplenotes.model.Note
 import com.simplenotes.model.User
+import com.simplenotes.model.UserNote
 import com.simplenotes.repository.NoteRepository
+import com.simplenotes.repository.UserNoteRepository
 import com.simplenotes.repository.UserRepository
 import com.simplenotes.service.NoteService
 import org.junit.jupiter.api.assertThrows
@@ -22,6 +24,9 @@ import kotlin.test.assertTrue
 @SpringBootTest(classes = [Application::class])
 @TestPropertySource("classpath:application.yaml")
 class NotesTests {
+    @Autowired
+    lateinit var userNoteRepository: UserNoteRepository
+
     @Autowired
     lateinit var noteRepository: NoteRepository
 
@@ -394,9 +399,27 @@ class NotesTests {
         assertThrowsNoteException("User ID is null") { noteService.deleteNote(User(id = null), 0) }
     }
 
-    private fun assertThrowsNoteException(message: String, block: () -> Unit) {
-        val exception = assertThrows<NoteException> { block() }
-        assertEquals(message, exception.message)
+    @Test
+    fun `should throw when updating note that exists in userNote but not in notes`() {
+        val user = userRepository.createUser("user-update-missing-note", "test-password")
+        val noteId = -999L
+
+        userNoteRepository.save(UserNote(user.id!!, noteId, 1))
+
+        val exception = assertThrows<NoteException> {
+            noteService.updateNote(user, Note(id = noteId, title = "test", content = "test"))
+        }
+
+        assertEquals("Note not found", exception.message)
+    }
+
+    @Test
+    fun `should throw when getting version with null User id`() {
+        val exception = assertThrows<NoteException> {
+            noteService.getVersion(User(id = null), 1, 1)
+        }
+
+        assertEquals("Missing User ID", exception.message)
     }
 
     @Test
@@ -440,5 +463,10 @@ class NotesTests {
         assertThrowsNoteException("User ID is null") {
             noteService.getDeletedNotes(User(id = null))
         }
+    }
+
+    private fun assertThrowsNoteException(message: String, block: () -> Unit) {
+        val exception = assertThrows<NoteException> { block() }
+        assertEquals(message, exception.message)
     }
 }
