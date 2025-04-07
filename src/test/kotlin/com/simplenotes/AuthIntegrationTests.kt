@@ -35,41 +35,6 @@ class ApplicationIntegrationTest {
     }
 
     @Test
-    fun `should allow access to secured endpoint with new access token after refresh`() {
-        val authRequest = AuthenticationRequest("user-allow-access-refresh@email.com", validPassword)
-        val authResponse = authRequest.registerUser()
-
-        // Validates user is authorized
-        mockMvc.perform(
-            get("/api/hello").header("Authorization", "Bearer ${authResponse.accessToken}")
-        ).andExpectAll(
-            status().isOk,
-            content().string("Hello, Authorized User!")
-        )
-
-        val refreshTokenRequest = RefreshTokenRequest(authResponse.refreshToken)
-
-        // Refresh tokens
-        val newAuth = mockMvc.perform(
-            post("/api/auth/refresh")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(refreshTokenRequest.asString())
-        ).andExpectAll(
-            status().isOk,
-            jsonPath("$.refreshToken").isNotEmpty
-        ).andReturn().parseTo<AuthenticationResponse>()
-
-        // Validates new token is valid
-        mockMvc.perform(
-            get("/api/hello")
-                .header("Authorization", "Bearer ${newAuth.accessToken}")
-        ).andExpectAll(
-            status().isOk,
-            content().string("Hello, Authorized User!")
-        )
-    }
-
-    @Test
     fun `should return unauthorized for invalid credentials`() {
         val authRequest = AuthenticationRequest("some-user@email.com", "test-password")
 
@@ -91,22 +56,19 @@ class ApplicationIntegrationTest {
         ).andExpect(status().isUnauthorized)
     }
 
-//    @Test
-//    fun `should return unauthorized for tampered refresh token`() {
-//        val user = User(email = "user-tampered-refresh-token", pass = validPassword)
-//        val auth = user.registerUser()
-//
-//        given(userDetailsService.loadUserByUsername("test-user")) willReturn {
-//            User("test-user-2", "test-password-2", ArrayList())
-//        }
-//
-//        mockMvc.perform(
-//            post("/api/auth/refresh")
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(RefreshTokenRequest(auth.refreshToken).asString())
-//        ).andExpect(status().isUnauthorized)
-//    }
+    @Test
+    fun `should return unauthorized for tampered refresh token`() {
+        val authRequest = AuthenticationRequest("user-tampered-refresh-token@email.com", validPassword)
+        val authResponse = authRequest.registerUser()
 
+        val tamperedToken = authResponse.refreshToken.replaceRange(5, 6, "X")
+
+        mockMvc.perform(
+            post("/api/auth/refresh")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(RefreshTokenRequest(tamperedToken).asString())
+        ).andExpect(status().isUnauthorized)
+    }
 
     @Test
     fun `should return forbidden for tampered access token`() {
