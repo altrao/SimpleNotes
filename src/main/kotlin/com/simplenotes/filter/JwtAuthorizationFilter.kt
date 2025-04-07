@@ -2,10 +2,12 @@ package com.simplenotes.filter
 
 import com.simplenotes.service.TokenService
 import io.jsonwebtoken.ExpiredJwtException
+import io.jsonwebtoken.security.SignatureException
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
@@ -38,9 +40,8 @@ class JwtAuthorizationFilter(
                     }
                 }
             } catch (ex: Exception) {
-                when (ex) {
-                    is ExpiredJwtException -> logger.debug("Expired JWT token")
-                    else -> logger.error("Authentication error", ex)
+                if (ex !is ExpiredJwtException && ex !is AuthenticationException && ex !is SignatureException) {
+                    logger.error("Authentication error", ex)
                 }
 
                 response.status = HttpServletResponse.SC_UNAUTHORIZED
