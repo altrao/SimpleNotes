@@ -398,4 +398,47 @@ class NotesTests {
         val exception = assertThrows<NoteException> { block() }
         assertEquals(message, exception.message)
     }
+
+    @Test
+    fun `should return deleted Notes`() {
+        val user = userRepository.createUser("user-get-deleted-notes", "test-password")
+        val note1 = noteService.createNote(user, "test-note-1", "test-content-1")
+        val note2 = noteService.createNote(user, "test-note-2", "test-content-2")
+
+        noteService.deleteNote(user, note1.id!!)
+        noteService.deleteNote(user, note2.id!!)
+
+        val deletedNotes = noteService.getDeletedNotes(user)
+        assertEquals(2, deletedNotes.size)
+        assertTrue(deletedNotes.all { it.id in listOf(note1.id, note2.id) })
+    }
+
+    @Test
+    fun `should paginate deleted Notes`() {
+        val user = userRepository.createUser("user-paginate-deleted-notes", "test-password")
+
+        repeat(20) {
+            val note = noteService.createNote(user, "test-note-$it", "test-content-$it")
+            noteService.deleteNote(user, note.id!!)
+        }
+
+        val firstPage = noteService.getDeletedNotes(user, limit = 10)
+        assertEquals(10, firstPage.size)
+
+        val lastCursor = (1..1).fold(firstPage.last().creationDate!!) { acc, i ->
+            noteService.getDeletedNotes(user, cursor = acc, limit = 10).also {
+                assertEquals(10, it.size)
+            }.last().creationDate!!
+        }
+
+        val lastPage = noteService.getDeletedNotes(user, cursor = lastCursor)
+        assertEquals(0, lastPage.size)
+    }
+
+    @Test
+    fun `should throw Exception when getting deleted Notes with null User id`() {
+        assertThrowsNoteException("User ID is null") {
+            noteService.getDeletedNotes(User(id = null))
+        }
+    }
 }
