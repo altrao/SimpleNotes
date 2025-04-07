@@ -18,15 +18,14 @@ class NotesController(
     @PostMapping
     fun createNote(
         @AuthenticationPrincipal() user: User,
-        @RequestBody note: NoteRequestEntity,
-        @RequestBody(required = false) ttl: Long? = null
+        @RequestBody note: NoteRequestEntity
     ): ResponseEntity<Note> {
         return ResponseEntity.ok(
             noteService.createNote(
                 user,
                 note.title,
                 note.content,
-                ttl?.let { Instant.now().plus(ttl, ChronoUnit.MINUTES) }
+                note.ttl?.let { Instant.now().plus(it, ChronoUnit.MINUTES) }
             )
         )
     }
