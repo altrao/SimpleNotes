@@ -35,9 +35,18 @@ class NotesController(
     fun getNotes(
         @AuthenticationPrincipal user: User,
         @RequestParam(required = false) cursor: Instant?,
-        @RequestParam(required = false) limit: Int?
+        @RequestParam(required = false) limit: Int?,
     ): ResponseEntity<List<Note>> {
         return ResponseEntity.ok(noteService.getNotes(user, cursor, limit))
+    }
+
+    @GetMapping("/deleted")
+    fun getDeletedNotes(
+        @AuthenticationPrincipal user: User,
+        @RequestParam(required = false) cursor: Instant?,
+        @RequestParam(required = false) limit: Int?,
+    ): ResponseEntity<List<Note>> {
+        return ResponseEntity.ok(noteService.getDeletedNotes(user, cursor, limit))
     }
 
     @GetMapping("/{noteId}")
@@ -52,16 +61,6 @@ class NotesController(
             ResponseEntity.notFound().build()
         }
     }
-
-//    @GetMapping("/all")
-//    fun getAllNotes(
-//        @AuthenticationPrincipal user: User,
-//        @RequestParam(required = false) cursor: Instant?,
-//        @RequestParam(required = false) limit: Int?,
-//        @RequestParam(required = false) deleted: Boolean = false
-//    ): ResponseEntity<List<Note>> {
-//        return ResponseEntity.ok(noteService.getAllNotes(user, cursor ?: Instant.now(), limit ?: 1000))
-//    }
 
     @GetMapping("/{noteId}/versions")
     fun getVersions(
