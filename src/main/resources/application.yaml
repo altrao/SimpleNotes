@@ -7,19 +7,28 @@ spring:
     password: password
     driver-class-name: org.postgresql.Driver
   jpa:
-    hibernate.ddl-auto: update
+    hibernate.ddl-auto: ${SPRING_JPA_HIBERNATE_DDL-AUTO:update}
     defer-datasource-initialization: true
+#    url: ${SPRING_DATASOURCE_URL}
+#    username: ${SPRING_DATASOURCE_USERNAME}
+#    password: ${SPRING_DATASOURCE_PASSWORD}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
 
 secure-notes:
-  pagination.limit: 1000
+  pagination:
+    limit: ${PAGINATION_LIMIT:1000}
   rate-limit:
-    capacity: 30
-    minutes: 1
+    capacity: ${RATE_LIMIT_CAPACITY:30}
+    minutes: ${RATE_LIMIT_MINUTES:1}
     burst:
-      capacity: 5
-      seconds: 1
+      capacity: ${RATE_LIMIT_BURST_CAPACITY:5}
+      seconds: ${RATE_LIMIT_BURST_SECONDS:1}
   security:
     jwt:
-      secret: b8d16d9d5cd0d3807f518d7ccadf9e6ae8b8022bb93b7025629edc7a3993952a14e4c2d9fd1b465775683058b23786ea5e10ed91b5fef4248a31561a3072828a
-      accessTokenExpiration: 1_800_000
-      refreshTokenExpiration: 259_200_000
+      secret: ${JWT_SECRET:b8d16d9d5cd0d3807f518d7ccadf9e6ae8b8022bb93b7025629edc7a3993952a14e4c2d9fd1b465775683058b23786ea5e10ed91b5fef4248a31561a3072828a}
+      accessTokenExpiration: ${JWT_ACCESS_TOKEN_EXPIRATION:1800000}
+      refreshTokenExpiration: ${JWT_REFRESH_TOKEN_EXPIRATION:259200000}

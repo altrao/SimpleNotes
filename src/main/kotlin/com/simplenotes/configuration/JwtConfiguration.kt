@@ -13,5 +13,5 @@ import org.springframework.context.annotation.Configuration
 open class JwtConfiguration(
     var secret: String = "",
     var accessTokenExpiration: Long = 1800000,
-    var refreshTokenExpiration: Long = 259_200_000
+    var refreshTokenExpiration: Long = 259200000
 )

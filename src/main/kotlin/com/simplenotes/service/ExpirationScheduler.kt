@@ -17,7 +17,6 @@ class ExpirationScheduler(
     private val logger = logger()
 
         @Scheduled(fixedRate = 60_000)
-//    @Scheduled(fixedRate = 5_000)
     fun cleanExpiredNotes() {
         logger.debug("Cleaning expired notes...")
 

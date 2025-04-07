@@ -38,7 +38,7 @@ open class SecurityConfig {
     ): DefaultSecurityFilterChain {
         http.csrf { it.disable() }
             .authorizeHttpRequests {
-                it.requestMatchers("/api/auth", "/api/auth/refresh", "/api/auth/register", "/error")
+                it.requestMatchers("/api/auth", "/api/auth/refresh", "/api/auth/register", "/error", "/actuator/health")
                     .permitAll()
                     .anyRequest()
                     .fullyAuthenticated()
