@@ -1,5 +1,7 @@
 plugins {
     kotlin("jvm") version "2.1.10"
+    id("org.springframework.boot") version "3.4.4"
+    id("io.spring.dependency-management") version "1.1.7"
 }
 
 group = "com.simplenotes"
@@ -8,16 +10,22 @@ version = "1.0-SNAPSHOT"
 val springVersion = "3.4.4"
 val jjwtVersion = "0.12.6"
 
+apply(plugin = "io.spring.dependency-management")
+
 repositories {
     mavenCentral()
+    gradlePluginPortal()
 }
 
 dependencies {
+    compileOnly("org.springframework.boot:spring-boot-starter-tomcat")
+
     implementation("org.jetbrains.kotlin:kotlin-stdlib:2.1.10")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.10.1")
     implementation("org.springframework.boot:spring-boot-starter-security:$springVersion")
     implementation("org.springframework.boot:spring-boot-starter-web:$springVersion")
+    implementation("org.springframework.boot:spring-boot-starter-actuator:$springVersion")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.2")
     implementation("org.jetbrains.kotlin:kotlin-reflect:2.1.20")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa:$springVersion")
@@ -39,6 +47,14 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+tasks.bootJar {
+    manifest {
+        attributes("Start-Class" to "com.simplenotes.Application")
+    }
+
+    archiveFileName.set("SimpleNotes.jar")
 }
 
 kotlin {
