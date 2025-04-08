@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration
  * @property refreshTokenExpiration The expiration time for refresh tokens in milliseconds. Default to 259200000 (3 days).
  */
 @Configuration
-@ConfigurationProperties(prefix = "secure-notes.security.jwt")
+@ConfigurationProperties(prefix = "simple-notes.security.jwt")
 open class JwtConfiguration(
     var secret: String = "",
     var accessTokenExpiration: Long = 1800000,

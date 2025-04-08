@@ -23,7 +23,7 @@ management:
       exposure:
         include: health
 
-secure-notes:
+simple-notes:
   pagination:
     limit: ${PAGINATION_LIMIT:1000}
   rate-limit:

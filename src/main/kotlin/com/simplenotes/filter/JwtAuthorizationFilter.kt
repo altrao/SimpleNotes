@@ -1,8 +1,7 @@
 package com.simplenotes.filter
 
 import com.simplenotes.service.TokenService
-import io.jsonwebtoken.ExpiredJwtException
-import io.jsonwebtoken.security.SignatureException
+import io.jsonwebtoken.JwtException
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -40,11 +39,11 @@ class JwtAuthorizationFilter(
                     }
                 }
             } catch (ex: Exception) {
-                if (ex !is ExpiredJwtException && ex !is AuthenticationException && ex !is SignatureException) {
+                if (ex !is JwtException && ex !is AuthenticationException) {
                     logger.error("Authentication error", ex)
                     response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Authentication error")
                 } else {
-                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication failed: ${ex.message}")
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication failed")
                     return
                 }
             }

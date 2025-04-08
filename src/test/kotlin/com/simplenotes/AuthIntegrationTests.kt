@@ -31,7 +31,7 @@ class ApplicationIntegrationTest {
     fun `should return forbidden for expired access token`() {
         mockMvc.perform(
             get("/api/hello").header("Authorization", "Bearer $expiredToken")
-        ).andExpect(status().isForbidden)
+        ).andExpect(status().isUnauthorized)
     }
 
     @Test
@@ -92,7 +92,7 @@ class ApplicationIntegrationTest {
 
         mockMvc.perform(
             get("/api/hello").header("Authorization", "Bearer $tamperedToken")
-        ).andExpect(status().isForbidden)
+        ).andExpect(status().isUnauthorized)
     }
 
     @Test
