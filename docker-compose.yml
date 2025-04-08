@@ -4,9 +4,9 @@ services:
     ports:
       - "8080:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/simple-notes
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
+      DATASOURCE_URL: jdbc:postgresql://db:5432/simple-notes
+      DATASOURCE_USERNAME: postgres
+      DATASOURCE_PASSWORD: postgres
       SPRING_JPA_HIBERNATE_DDL-AUTO: update
       MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health
       JWT_SECRET: b8d16d9d5cd0d3807f518d7ccadf9e6ae8b8022bb93b7025629edc7a3993952a14e4c2d9fd1b465775683058b23786ea5e10ed91b5fef4248a31561a3072828a

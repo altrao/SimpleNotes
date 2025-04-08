@@ -8,6 +8,8 @@ FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
 COPY --from=build /app/build/libs/SimpleNotes.jar SimpleNotes.jar
 
+LABEL name="SimpleNotes"
+
 ENV SPRING_PROFILES_ACTIVE=prod
 
 EXPOSE 8080
