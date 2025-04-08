@@ -32,7 +32,10 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-api:$jjwtVersion")
     implementation("io.jsonwebtoken:jjwt-impl:$jjwtVersion")
     implementation("com.github.ben-manes.caffeine:caffeine:3.2.0")
-    implementation("com.bucket4j:bucket4j_jdk17-core:8.14.0")
+    implementation("com.bucket4j:bucket4j-core:8.10.1")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis:$springVersion")
+    implementation("io.lettuce:lettuce-core:6.3.2.RELEASE")
+    implementation("com.bucket4j:bucket4j-redis:8.10.1")
 
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:$jjwtVersion")
     runtimeOnly("org.postgresql:postgresql:42.7.5")

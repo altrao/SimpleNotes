@@ -56,7 +56,7 @@ The application implements security strategy with multiple layers of protection:
 ### API Protection
 - Rate limiting to prevent abuse (visible in [RateLimitConfiguration](src/main/kotlin/com/simplenotes/configuration/RateLimitConfiguration.kt))
   - Limits are set to low by default: 30 reqs/min with a burst of 5 req/s allowed
-  - The rate limiting is dealt with in-memory (though it could be using Redis for distributed limiting, but for this case I kept it in-memory for simplicity)
+  - The rate limiting is dealt with using Redis
 - Input validation for all API requests
 - Only authenticated requests can go through
 

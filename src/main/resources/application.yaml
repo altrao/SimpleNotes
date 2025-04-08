@@ -16,6 +16,16 @@ spring:
   jpa:
     hibernate.ddl-auto: ${SPRING_JPA_HIBERNATE_DDL-AUTO:validate}
     defer-datasource-initialization: true
+  data.redis:
+    host: redis
+    port: 6379
+    timeout: 5000
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: -1ms
 
 management:
   endpoints:

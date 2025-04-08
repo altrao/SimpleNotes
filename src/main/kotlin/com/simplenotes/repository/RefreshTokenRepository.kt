@@ -1,29 +1,27 @@
 package com.simplenotes.repository
 
-import com.github.benmanes.caffeine.cache.Cache
-import com.github.benmanes.caffeine.cache.Caffeine
 import com.simplenotes.configuration.JwtConfiguration
+import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Component
 import java.time.Duration
 
 @Component
 class RefreshTokenRepository(
-    jwtConfiguration: JwtConfiguration
+    jwtConfiguration: JwtConfiguration,
+    private val redisTemplate: RedisTemplate<String, UserDetails>
 ) {
-    private val tokens: Cache<String, UserDetails> = Caffeine.newBuilder()
-        .expireAfterWrite(Duration.ofMillis(jwtConfiguration.refreshTokenExpiration))
-        .build()
+    private val expiration = Duration.ofMillis(jwtConfiguration.refreshTokenExpiration)
 
     fun findUserByToken(token: String): UserDetails? {
-        return tokens.getIfPresent(token)
+        return redisTemplate.opsForValue().get(token)
     }
 
     fun invalidate(token: String) {
-        tokens.invalidate(token)
+        redisTemplate.delete(token)
     }
 
     fun save(token: String, user: UserDetails) {
-        tokens.put(token, user)
+        redisTemplate.opsForValue().set(token, user, expiration)
     }
 }
