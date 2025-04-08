@@ -147,29 +147,16 @@ class NotesControllerTest {
     }
 
     @Test
-    fun `createNote should validate title length`() {
-        val longTitle = "a".repeat(121)
-        val request = NoteRequestEntity(longTitle, "content")
+    fun `createNote should allow create note with empty content`() {
+        val noteRequest = NoteRequestEntity("test title request", "")
+        val note = Note(1, 1, noteRequest.title, noteRequest.content, Instant.now())
 
-        val exception = assertThrows<NoteException> {
-            notesController.createNote(user, request)
-        }
+        given(noteService.createNote(user, noteRequest.title, noteRequest.content, null)) willReturn { note }
 
-        Assertions.assertEquals("Note title cannot exceed 120 characters", exception.message)
-        verify(noteService, never()).createNote(any(), any(), any(), any())
-    }
+        val response = notesController.createNote(user, noteRequest)
 
-    @Test
-    fun `createNote should validate content length`() {
-        val longContent = "a".repeat(256)
-        val request = NoteRequestEntity("title", longContent)
-
-        val exception = assertThrows<NoteException> {
-            notesController.createNote(user, request)
-        }
-
-        Assertions.assertEquals("Note content cannot exceed 255 characters", exception.message)
-        verify(noteService, never()).createNote(any(), any(), any(), any())
+        Assertions.assertEquals(HttpStatus.OK, response.statusCode)
+        Assertions.assertEquals(note, response.body)
     }
 
     @Test
@@ -183,32 +170,6 @@ class NotesControllerTest {
 
         val response = notesController.createNote(user, request)
         Assertions.assertEquals(ResponseEntity.ok(expectedNote), response)
-    }
-
-    @Test
-    fun `updateNote should validate title length`() {
-        val longTitle = "a".repeat(121)
-        val request = NoteRequestEntity(longTitle, "content")
-
-        val exception = assertThrows<NoteException> {
-            notesController.updateNote(user, 1, request)
-        }
-
-        Assertions.assertEquals("Note title cannot exceed 120 characters", exception.message)
-        verify(noteService, never()).updateNote(any(), any())
-    }
-
-    @Test
-    fun `updateNote should validate content length`() {
-        val longContent = "a".repeat(256)
-        val request = NoteRequestEntity("title", longContent)
-
-        val exception = assertThrows<NoteException> {
-            notesController.updateNote(user, 1, request)
-        }
-
-        Assertions.assertEquals("Note content cannot exceed 255 characters", exception.message)
-        verify(noteService, never()).updateNote(any(), any())
     }
 
     @Test

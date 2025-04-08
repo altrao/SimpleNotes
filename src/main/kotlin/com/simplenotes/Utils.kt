@@ -9,9 +9,14 @@ inline fun <reified T> T.logger(): Logger {
 }
 
 fun validateTitleAndContentLength(title: String, content: String) {
+    if (title.isBlank()) {
+        throw NoteException("Title cannot be empty")
+    }
+
     if (title.length > 120) {
         throw NoteException("Note title cannot exceed 120 characters")
     }
+
     if (content.length > 255) {
         throw NoteException("Note content cannot exceed 255 characters")
     }

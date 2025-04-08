@@ -21,8 +21,6 @@ class NotesController(
         @AuthenticationPrincipal() user: User,
         @RequestBody note: NoteRequestEntity
     ): ResponseEntity<Note> {
-        validateTitleAndContentLength(note.title, note.content)
-
         return ResponseEntity.ok(
             noteService.createNote(
                 user,
@@ -80,8 +78,6 @@ class NotesController(
         @PathVariable noteId: Long,
         @RequestBody note: NoteRequestEntity
     ): ResponseEntity<Note> {
-        validateTitleAndContentLength(note.title, note.content)
-
         return ResponseEntity.ok(noteService.updateNote(user, Note(id = noteId, title = note.title, content = note.content)))
     }
 

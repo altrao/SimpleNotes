@@ -75,7 +75,6 @@ class NoteService(
             throw NoteException("Missing User ID")
         }
 
-
         validateTitleAndContentLength(title, content)
 
         if (expirationDate?.isBefore(Instant.now()) == true) {
