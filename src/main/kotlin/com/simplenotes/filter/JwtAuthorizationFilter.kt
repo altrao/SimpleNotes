@@ -42,10 +42,11 @@ class JwtAuthorizationFilter(
             } catch (ex: Exception) {
                 if (ex !is ExpiredJwtException && ex !is AuthenticationException && ex !is SignatureException) {
                     logger.error("Authentication error", ex)
+                    response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Authentication error")
+                } else {
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication failed: ${ex.message}")
+                    return
                 }
-
-                response.status = HttpServletResponse.SC_UNAUTHORIZED
-                response.writer.write("Authentication failed: ${ex.message}")
             }
         }
 

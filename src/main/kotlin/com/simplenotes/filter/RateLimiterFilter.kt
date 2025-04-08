@@ -23,6 +23,10 @@ import java.time.Duration
  *
  * 2. **Burst Rate Limit:**
  *    - Permits a burst of up to [burstCapacity] requests within a [burstSeconds]-second window.
+ *
+ * Error Handling Behavior:
+ * - Returns HTTP 429 (Too Many Requests) when rate limit is exceeded
+ * - Continues processing on internal errors (HTTP 500) to avoid service disruption
  */
 @Component
 class RateLimiterFilter(
@@ -48,12 +52,13 @@ class RateLimiterFilter(
             }
 
             if (!bucket.tryConsume(1)) {
-                response.status = HttpStatus.TOO_MANY_REQUESTS.value()
-                response.writer.write("Too many requests")
+                logger.warn("Rate limiting exceeded for IP ${request.remoteAddr} | Calling on ${request.requestURI}")
+                response.sendError(HttpStatus.TOO_MANY_REQUESTS.value(), "Too many requests")
+                return
             }
         } catch (ex: Exception) {
-            logger.error("Error processing request", ex)
-            response.status = HttpStatus.INTERNAL_SERVER_ERROR.value()
+            logger.error("Rate limiting error for IP ${request.remoteAddr}: ${ex.message}", ex)
+            response.status = HttpServletResponse.SC_INTERNAL_SERVER_ERROR
         }
 
         filterChain.doFilter(request, response)
