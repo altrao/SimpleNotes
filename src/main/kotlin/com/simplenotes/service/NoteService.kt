@@ -6,6 +6,7 @@ import com.simplenotes.model.*
 import com.simplenotes.repository.NoteRepository
 import com.simplenotes.repository.SequenceRepository
 import com.simplenotes.repository.UserNoteRepository
+import com.simplenotes.validateTitleAndContentLength
 import org.springframework.data.domain.Limit
 import org.springframework.stereotype.Service
 import java.time.Instant
@@ -74,6 +75,9 @@ class NoteService(
             throw NoteException("Missing User ID")
         }
 
+
+        validateTitleAndContentLength(title, content)
+
         if (expirationDate?.isBefore(Instant.now()) == true) {
             throw NoteException("Expiration date cannot be in the past")
         }
@@ -93,6 +97,8 @@ class NoteService(
         if (note.id == null || user.id == null) {
             throw NoteException("Missing Note or User ID")
         }
+
+        validateTitleAndContentLength(note.title, note.content)
 
         val latestVersion = userNoteRepository.findById(UserNoteId(user.id, note.id)).takeIf { it.isPresent }?.get()
             ?: throw NoteException("Note not found")

@@ -4,6 +4,7 @@ import com.simplenotes.controller.model.NoteRequestEntity
 import com.simplenotes.model.Note
 import com.simplenotes.model.User
 import com.simplenotes.service.NoteService
+import com.simplenotes.validateTitleAndContentLength
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
@@ -20,6 +21,8 @@ class NotesController(
         @AuthenticationPrincipal() user: User,
         @RequestBody note: NoteRequestEntity
     ): ResponseEntity<Note> {
+        validateTitleAndContentLength(note.title, note.content)
+
         return ResponseEntity.ok(
             noteService.createNote(
                 user,
@@ -77,6 +80,8 @@ class NotesController(
         @PathVariable noteId: Long,
         @RequestBody note: NoteRequestEntity
     ): ResponseEntity<Note> {
+        validateTitleAndContentLength(note.title, note.content)
+
         return ResponseEntity.ok(noteService.updateNote(user, Note(id = noteId, title = note.title, content = note.content)))
     }
 
