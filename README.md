@@ -4,6 +4,7 @@
 
 ### Prerequisites
 - Docker installed
+- Redis server (included in Docker setup)
 
 ### Running the Application
 1. Clone this repository: 
@@ -42,6 +43,14 @@ The application can be configured using environment variables. These can be set 
 #### Pagination
 - `PAGINATION_LIMIT`: Maximum number of items returned in paginated responses (default: 1000)
 
+#### Redis Configuration
+- Redis is used for:
+  - Distributed rate limiting (via Bucket4j)
+  - Refresh token storage
+  - Provides persistence and scalability for these features
+- Configured in docker-compose.yml with health checks
+- Connection settings in application.yaml (host, port, Lettuce pool)
+
 ## Security and Scalability Approach
 
 ## Security Measures
@@ -54,7 +63,7 @@ The application implements security strategy with multiple layers of protection:
 - Secure password storage hashing
 
 ### API Protection
-- Rate limiting to prevent abuse (visible in [RateLimitConfiguration](src/main/kotlin/com/simplenotes/configuration/RateLimitConfiguration.kt))
+- Rate limiting to prevent abuse
   - Limits are set to low by default: 30 reqs/min with a burst of 5 req/s allowed
   - The rate limiting is dealt with using Redis
 - Input validation for all API requests
