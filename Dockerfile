@@ -1,4 +1,3 @@
- Build stage
 FROM gradle:8.4-jdk17 AS build
 WORKDIR /app
 COPY . .
