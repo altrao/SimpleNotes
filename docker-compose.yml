@@ -17,9 +17,12 @@ services:
       RATE_LIMIT_BURST_SECONDS: 1
       JWT_ACCESS_TOKEN_EXPIRATION: 1800000
       JWT_REFRESH_TOKEN_EXPIRATION: 259200000
-
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
