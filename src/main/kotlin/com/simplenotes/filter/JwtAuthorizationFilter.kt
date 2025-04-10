@@ -21,10 +21,16 @@ class JwtAuthorizationFilter(
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
         val authorizationHeader: String? = request.getHeader("Authorization")
 
-        if (null != authorizationHeader && authorizationHeader.startsWith("Bearer ")) {
+        if (null != authorizationHeader && hasToken(authorizationHeader)) {
             try {
-                val token: String = authorizationHeader.substringAfter("Bearer ")
-                val username: String = tokenService.extractUsername(token)
+                val token = extractToken(authorizationHeader)
+
+                if (tokenService.isTokenRevoked(token)) {
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication failed")
+                    return
+                }
+
+                val username = tokenService.extractUsername(token)
 
                 if (SecurityContextHolder.getContext().authentication == null) {
                     val user = userDetailsService.loadUserByUsername(username)
@@ -51,4 +57,7 @@ class JwtAuthorizationFilter(
 
         filterChain.doFilter(request, response)
     }
+
+    private fun hasToken(header: String) = header.startsWith("Bearer ")
+    private fun extractToken(header: String) = header.substringAfter("Bearer ")
 }

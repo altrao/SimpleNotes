@@ -1,7 +1,7 @@
 package com.simplenotes.service
 
 import com.simplenotes.exception.RegisterException
-import com.simplenotes.model.AuthenticationRequest
+import com.simplenotes.controller.model.AuthenticationRequest
 import com.simplenotes.model.Role
 import com.simplenotes.model.User
 import com.simplenotes.repository.UserRepository

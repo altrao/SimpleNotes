@@ -2,10 +2,10 @@ package com.simplenotes
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.simplenotes.model.APIRequest
-import com.simplenotes.model.AuthenticationRequest
-import com.simplenotes.model.AuthenticationResponse
-import com.simplenotes.model.RefreshTokenRequest
+import com.simplenotes.controller.model.APIRequest
+import com.simplenotes.controller.model.AuthenticationRequest
+import com.simplenotes.controller.model.Tokens
+import com.simplenotes.controller.model.TokenRequest
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -47,7 +47,7 @@ class ApplicationIntegrationTest {
 
     @Test
     fun `should return unauthorized for invalid refresh token`() {
-        val jsonRequest = jacksonObjectMapper().writeValueAsString(RefreshTokenRequest(expiredToken))
+        val jsonRequest = jacksonObjectMapper().writeValueAsString(TokenRequest(expiredToken))
 
         mockMvc.perform(
             post("/api/auth/refresh")
@@ -66,7 +66,7 @@ class ApplicationIntegrationTest {
         mockMvc.perform(
             post("/api/auth/refresh")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(RefreshTokenRequest(tamperedToken).asString())
+                .content(TokenRequest(tamperedToken).asString())
         ).andExpect(status().isUnauthorized)
     }
 
@@ -85,7 +85,7 @@ class ApplicationIntegrationTest {
             jsonPath("$.refreshToken").isNotEmpty
         ).andReturn().response.contentAsString
 
-        val authResponse = jacksonObjectMapper().readValue(response, AuthenticationResponse::class.java)
+        val authResponse = jacksonObjectMapper().readValue(response, Tokens::class.java)
 
         // Tamper with the token (e.g., change a character)
         val tamperedToken = authResponse.accessToken.replaceRange(5, 6, "X")
@@ -104,15 +104,15 @@ class ApplicationIntegrationTest {
         val refreshResponse = mockMvc.perform(
             post("/api/auth/refresh")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(RefreshTokenRequest(authResponse.refreshToken).asString())
-        ).andExpect(status().isOk).andReturn().parseTo<AuthenticationResponse>()
+                .content(TokenRequest(authResponse.refreshToken).asString())
+        ).andExpect(status().isOk).andReturn().parseTo<Tokens>()
 
         // Should refresh new token
         val newAuthResponse = mockMvc.perform(
             post("/api/auth/refresh")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(RefreshTokenRequest(refreshResponse.refreshToken).asString())
-        ).andExpect(status().isOk).andReturn().parseTo<AuthenticationResponse>()
+                .content(TokenRequest(refreshResponse.refreshToken).asString())
+        ).andExpect(status().isOk).andReturn().parseTo<Tokens>()
 
         assertNotEquals(authResponse.refreshToken, refreshResponse.refreshToken, "Refresh token should be rotated")
         assertNotEquals(refreshResponse.refreshToken, newAuthResponse.refreshToken, "Refresh token should be rotated")
@@ -194,7 +194,7 @@ class ApplicationIntegrationTest {
         ).andExpect(status().isBadRequest)
     }
 
-    private fun AuthenticationRequest.registerUser(): AuthenticationResponse {
+    private fun AuthenticationRequest.registerUser(): Tokens {
         return mockMvc.perform(
             asyncDispatch(
                 mockMvc.perform(

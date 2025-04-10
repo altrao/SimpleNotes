@@ -1,5 +1,6 @@
 package com.simplenotes.controller
 
+import com.simplenotes.controller.model.ErrorResponseEntity
 import com.simplenotes.exception.NoteException
 import com.simplenotes.exception.RegisterException
 import com.simplenotes.logger
@@ -17,18 +18,18 @@ class ControllerAdvice {
     private val logger = logger()
 
     @ExceptionHandler(value = [JwtException::class, AuthenticationException::class, SignatureException::class])
-    fun handleAuthenticationExceptions(ex: RuntimeException): ResponseEntity<String> {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed.")
+    fun handleAuthenticationExceptions(ex: RuntimeException): ResponseEntity<ErrorResponseEntity> {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ErrorResponseEntity("Authentication failed"))
     }
 
     @ExceptionHandler(value = [RegisterException::class])
-    fun handleRegisterExceptions(ex: RegisterException): ResponseEntity<String> {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.message)
+    fun handleRegisterExceptions(ex: RegisterException): ResponseEntity<ErrorResponseEntity> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorResponseEntity(ex.message))
     }
 
     @ExceptionHandler(value = [NoteException::class])
-    fun handleNoteException(ex: NoteException): ResponseEntity<String> {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.message)
+    fun handleNoteException(ex: NoteException): ResponseEntity<ErrorResponseEntity> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorResponseEntity(ex.message))
     }
 
     /**
@@ -39,9 +40,9 @@ class ControllerAdvice {
      *
      */
     @ExceptionHandler(value = [OptimisticLockingFailureException::class])
-    fun handleOptimisticLockingException(ex: OptimisticLockingFailureException): ResponseEntity<String> {
+    fun handleOptimisticLockingException(ex: OptimisticLockingFailureException): ResponseEntity<ErrorResponseEntity> {
         logger.error("An error occurred while processing the request.", ex)
 
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred.")
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorResponseEntity("An error occurred while processing the request."))
     }
 }

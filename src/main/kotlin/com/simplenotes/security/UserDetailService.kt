@@ -1,7 +1,7 @@
 package com.simplenotes.security
 
 import com.simplenotes.exception.RegisterException
-import com.simplenotes.model.AuthenticationRequest
+import com.simplenotes.controller.model.AuthenticationRequest
 import com.simplenotes.model.User
 import com.simplenotes.repository.UserRepository
 import org.springframework.security.core.userdetails.UserDetails
@@ -24,7 +24,7 @@ class UserDetailsService(
         val existingUser = userRepository.findByEmail(request.username)
 
         if (existingUser != null) {
-            throw RegisterException("User already exists")
+            throw RegisterException("Invalid user.")
         }
 
         return userRepository.createUser(request.username, passwordEncoder.encode(request.password))

@@ -2,7 +2,7 @@ services:
   app:
     build: .
     ports:
-      - "8080:8080"
+      - "0.0.0.0:8080:8080"
     environment:
       DATASOURCE_URL: jdbc:postgresql://db:5432/simple-notes
       DATASOURCE_USERNAME: postgres

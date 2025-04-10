@@ -1,8 +1,8 @@
 package com.simplenotes.controller
 
-import com.simplenotes.model.AuthenticationRequest
-import com.simplenotes.model.AuthenticationResponse
-import com.simplenotes.model.RefreshTokenRequest
+import com.simplenotes.controller.model.AuthenticationRequest
+import com.simplenotes.controller.model.Tokens
+import com.simplenotes.controller.model.TokenRequest
 import com.simplenotes.service.AuthenticationService
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.PostMapping
@@ -16,17 +16,18 @@ class AuthController(
     private val authenticationService: AuthenticationService
 ) {
     @PostMapping
-    fun authenticate(@RequestBody authRequest: AuthenticationRequest): AuthenticationResponse {
+    fun authenticate(@RequestBody authRequest: AuthenticationRequest): Tokens {
         return authenticationService.authentication(authRequest)
     }
 
     @PostMapping("/refresh")
-    fun refreshAccessToken(@RequestBody request: RefreshTokenRequest): AuthenticationResponse {
-        return authenticationService.refreshAccessToken(request.token)
+    fun refreshAccessToken(@RequestBody request: TokenRequest): Tokens {
+        return authenticationService.refreshTokens(request.token)
     }
 
     @PostMapping("/register", consumes = [MediaType.APPLICATION_JSON_VALUE] , produces = [MediaType.APPLICATION_JSON_VALUE])
-    suspend fun register(@RequestBody request: AuthenticationRequest): AuthenticationResponse {
+    suspend fun register(@RequestBody request: AuthenticationRequest): Tokens {
         return authenticationService.register(request)
     }
+
 }

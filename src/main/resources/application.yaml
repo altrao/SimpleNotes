@@ -1,7 +1,7 @@
 spring:
   data.redis:
-    host: ${REDIS_HOST}
-    port: ${REDIS_PORT}
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
     timeout: 5000
     lettuce:
       pool:
@@ -47,3 +47,5 @@ simple-notes:
       secret: ${JWT_SECRET:b8d16d9d5cd0d3807f518d7ccadf9e6ae8b8022bb93b7025629edc7a3993952a14e4c2d9fd1b465775683058b23786ea5e10ed91b5fef4248a31561a3072828a}
       accessTokenExpiration: ${JWT_ACCESS_TOKEN_EXPIRATION:1800000}
       refreshTokenExpiration: ${JWT_REFRESH_TOKEN_EXPIRATION:259200000}
+server:
+  address: 0.0.0.0

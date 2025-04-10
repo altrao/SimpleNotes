@@ -1,6 +1,5 @@
-package controller
+package com.simplenotes.controller
 
-import com.simplenotes.controller.NotesController
 import com.simplenotes.controller.model.NoteRequestEntity
 import com.simplenotes.exception.NoteException
 import com.simplenotes.model.Note
@@ -9,18 +8,11 @@ import com.simplenotes.service.NoteService
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.mockito.kotlin.any
-import org.mockito.kotlin.argWhere
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.given
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.never
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.willReturn
+import org.mockito.kotlin.*
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 
 class NotesControllerTest {
     private val noteService: NoteService = mock()

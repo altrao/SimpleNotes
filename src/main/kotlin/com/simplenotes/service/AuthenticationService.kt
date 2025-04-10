@@ -1,9 +1,8 @@
 package com.simplenotes.service
 
 import com.simplenotes.configuration.JwtConfiguration
-import com.simplenotes.model.AuthenticationRequest
-import com.simplenotes.model.AuthenticationResponse
-import com.simplenotes.repository.RefreshTokenRepository
+import com.simplenotes.controller.model.AuthenticationRequest
+import com.simplenotes.controller.model.Tokens
 import com.simplenotes.security.UserDetailsService
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.AuthenticationServiceException
@@ -20,17 +19,16 @@ class AuthenticationService(
     private val authManager: AuthenticationManager,
     private val userDetailsService: UserDetailsService,
     private val tokenService: TokenService,
-    private val refreshTokenRepository: RefreshTokenRepository,
     private val jwtConfiguration: JwtConfiguration
 ) {
-    fun register(authenticationRequest: AuthenticationRequest): AuthenticationResponse {
+    fun register(authenticationRequest: AuthenticationRequest): Tokens {
         val user = userDetailsService.register(authenticationRequest)
         val (accessToken, refreshToken) = generateTokens(user)
 
-        return AuthenticationResponse(accessToken, refreshToken)
+        return Tokens(accessToken, refreshToken)
     }
 
-    fun authentication(authenticationRequest: AuthenticationRequest): AuthenticationResponse {
+    fun authentication(authenticationRequest: AuthenticationRequest): Tokens {
         val authentication = authManager.authenticate(
             UsernamePasswordAuthenticationToken(
                 authenticationRequest.username,
@@ -45,23 +43,27 @@ class AuthenticationService(
         val user = userDetailsService.loadUserByUsername(authenticationRequest.username)
         val (accessToken, refreshToken) = generateTokens(user)
 
-        return AuthenticationResponse(
+        return Tokens(
             accessToken = accessToken,
             refreshToken = refreshToken
         )
     }
 
-    fun refreshAccessToken(refreshToken: String): AuthenticationResponse {
+    fun refreshTokens(refreshToken: String): Tokens {
+        if (tokenService.isTokenRevoked(refreshToken)) {
+            throw AuthenticationServiceException("Invalid refresh token")
+        }
+
         val username = tokenService.extractUsername(refreshToken)
         val user = userDetailsService.loadUserByUsername(username)
-        val refreshTokenUser = refreshTokenRepository.findUserByToken(refreshToken)
+        val refreshTokenUser = tokenService.findUserByRefreshToken(refreshToken)
 
         return if (user.username != null && user.username == refreshTokenUser?.username) {
             val (newAccessToken, newRefreshToken) = generateTokens(user)
 
-            refreshTokenRepository.invalidate(refreshToken)
+            tokenService.revokeRefreshToken(refreshToken)
 
-            AuthenticationResponse(newAccessToken, newRefreshToken)
+            Tokens(newAccessToken, newRefreshToken)
         } else {
             throw AuthenticationServiceException("Invalid refresh token")
         }
@@ -71,7 +73,7 @@ class AuthenticationService(
         val accessToken = generateAccessToken(user)
         val refreshToken = generateRefreshToken(user)
 
-        refreshTokenRepository.save(refreshToken, user)
+        tokenService.saveRefreshToken(refreshToken, user)
 
         return accessToken to refreshToken
     }

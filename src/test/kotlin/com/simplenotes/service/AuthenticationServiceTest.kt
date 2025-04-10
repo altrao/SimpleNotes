@@ -1,9 +1,9 @@
 package com.simplenotes.service
 
 import com.simplenotes.configuration.JwtConfiguration
-import com.simplenotes.model.AuthenticationRequest
+import com.simplenotes.controller.model.AuthenticationRequest
 import com.simplenotes.model.Role
-import com.simplenotes.repository.RefreshTokenRepository
+import com.simplenotes.repository.TokenRepository
 import com.simplenotes.security.UserDetailsService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
@@ -21,7 +21,7 @@ class AuthenticationServiceTest {
     private val authManager: AuthenticationManager = mock()
     private val userDetailsService: UserDetailsService = mock()
     private val tokenService: TokenService = mock()
-    private val refreshTokenRepository: RefreshTokenRepository = mock()
+    private val tokenRepository: TokenRepository = mock()
 
     private val jwtConfiguration = JwtConfiguration()
 
@@ -29,7 +29,6 @@ class AuthenticationServiceTest {
         authManager,
         userDetailsService,
         tokenService,
-        refreshTokenRepository,
         jwtConfiguration
     )
 
@@ -101,11 +100,11 @@ class AuthenticationServiceTest {
 
         given(tokenService.extractUsername(refreshToken)) willReturn { username }
         given(userDetailsService.loadUserByUsername(username)) willReturn { currentUser }
-        given(refreshTokenRepository.findUserByToken(refreshToken)) willReturn { refreshTokenUser }
+        given(tokenService.findUserByRefreshToken(refreshToken)) willReturn { refreshTokenUser }
         given(tokenService.generateToken(eq(currentUser.username), any(), argWhere { it.isNotEmpty() })) willReturn { newAccessToken }
         given(tokenService.generateToken(eq(currentUser.username), any(), argWhere { it.isEmpty() })) willReturn { newRefreshToken }
 
-        val response = authenticationService.refreshAccessToken(refreshToken)
+        val response = authenticationService.refreshTokens(refreshToken)
 
         assertEquals(newAccessToken, response.accessToken)
         assertEquals(newRefreshToken, response.refreshToken)
@@ -120,10 +119,10 @@ class AuthenticationServiceTest {
 
         given(tokenService.extractUsername(refreshToken)) willReturn { username }
         given(userDetailsService.loadUserByUsername(username)) willReturn { currentUser }
-        given(refreshTokenRepository.findUserByToken(refreshToken)) willReturn { refreshTokenUser }
+        given(tokenRepository.findUserByRefreshToken(refreshToken)) willReturn { refreshTokenUser }
 
         assertThrows(AuthenticationServiceException::class.java) {
-            authenticationService.refreshAccessToken(refreshToken)
+            authenticationService.refreshTokens(refreshToken)
         }
     }
 }

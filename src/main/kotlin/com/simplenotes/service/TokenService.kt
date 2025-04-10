@@ -1,8 +1,10 @@
 package com.simplenotes.service
 
 import com.simplenotes.configuration.JwtConfiguration
+import com.simplenotes.repository.TokenRepository
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
 import java.util.*
 import javax.crypto.spec.SecretKeySpec
@@ -15,7 +17,8 @@ import javax.crypto.spec.SecretKeySpec
  */
 @Service
 class TokenService(
-    jwtConfiguration: JwtConfiguration
+    jwtConfiguration: JwtConfiguration,
+    private val tokenRepository: TokenRepository
 ) {
     private val signingKey: SecretKeySpec = SecretKeySpec(Base64.getDecoder().decode(jwtConfiguration.secret), "HmacSHA256")
 
@@ -35,11 +38,31 @@ class TokenService(
         return extractAllClaims(token).subject
     }
 
+    fun isTokenRevoked(token: String): Boolean {
+        return tokenRepository.isAccessTokenRevoked(token)
+    }
+
     private fun extractAllClaims(token: String): Claims {
         return Jwts.parser()
             .verifyWith(signingKey)
             .build()
             .parseSignedClaims(token)
             .payload
+    }
+
+    fun findUserByRefreshToken(token: String): UserDetails? {
+        return tokenRepository.findUserByRefreshToken(token)
+    }
+
+    fun revokeRefreshToken(refreshToken: String) {
+        tokenRepository.invalidateRefreshToken(refreshToken)
+    }
+
+    fun saveRefreshToken(refreshToken: String, user: UserDetails) {
+        tokenRepository.saveRefreshToken(refreshToken, user)
+    }
+
+    fun revokeAccessToken(accessToken: String) {
+        tokenRepository.invalidateAccessToken(accessToken)
     }
 }

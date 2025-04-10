@@ -1,12 +1,15 @@
 package com.simplenotes.service
 
 import com.simplenotes.configuration.JwtConfiguration
+import com.simplenotes.repository.TokenRepository
 import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.MalformedJwtException
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.springframework.data.redis.core.RedisTemplate
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.test.util.ReflectionTestUtils
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -16,7 +19,10 @@ import javax.crypto.SecretKey
 class TokenServiceTest {
     private val secret = "5d280cb4685fdc83acec1fab4a75468017b35b84d43f0daca9476b740ebd732f"
     private val subject = "test-user"
-    private val tokenService = TokenService(JwtConfiguration(secret))
+    val jwtConfiguration = JwtConfiguration(secret)
+    val redisTemplate = RedisTemplate<String, UserDetails>()
+    val tokenRepository = TokenRepository(jwtConfiguration, redisTemplate)
+    private val tokenService = TokenService(jwtConfiguration, tokenRepository)
 
     @Test
     fun `generateToken should create a valid token`() {
