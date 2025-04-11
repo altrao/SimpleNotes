@@ -1,6 +1,7 @@
 services:
   app:
-    build: .
+#    build: .
+    image: altrao/simple-notes
     ports:
       - "0.0.0.0:8080:8080"
     environment:
@@ -54,6 +55,13 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
+  simple-notes-react:
+    image: altrao/simple-notes-react
+    ports:
+      - "3000:3000"
+    environment:
+      HOST_ADDRESS: app
 
 volumes:
   postgres_data:

@@ -1,7 +1,7 @@
 FROM gradle:8.4-jdk17 AS build
 WORKDIR /app
 COPY . .
-RUN ./gradlew bootJar --no-daemon
+RUN ./gradlew bootJar --no-daemon --exclude-task test
 
 FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
